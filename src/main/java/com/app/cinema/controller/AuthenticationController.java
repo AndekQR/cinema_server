@@ -79,7 +79,6 @@ public class AuthenticationController {
         } else {
             throw new UserAlreadyInDatabaseException("User already in database");
         }
-
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 

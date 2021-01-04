@@ -1,10 +1,7 @@
 package com.app.cinema.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,29 +17,23 @@ import java.util.stream.Collectors;
 @Table(name="USERS")
 @NoArgsConstructor
 @EqualsAndHashCode
+@Data
 public class User implements UserDetails, Serializable {
 
     @Id
-    @Getter
+    @Setter(AccessLevel.PRIVATE)
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
 
-    @Getter
-    @Setter
     private String firstName;
-    @Getter
-    @Setter
     private String lastName;
-    @Getter
-    @Setter
     private String email;
-    @Getter
-    @Setter
     private Boolean verified;
-    @Setter
     private String password;
 
-    @Setter
+    @OneToMany(mappedBy="client")
+    private List<Reservation> reservations;
+
     @ManyToMany(cascade=CascadeType.MERGE, fetch=FetchType.EAGER)
     @JoinTable(
             name="USER_AUTHORITY",

@@ -1,6 +1,7 @@
 package com.app.cinema.security.jwt;
 
 import io.jsonwebtoken.*;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,7 +21,7 @@ public class JwtTokenProvider {
     private final UserDetailsService userDetailsService;
     private String secretKey;
 
-    public JwtTokenProvider(JwtProperties jwtProperties, UserDetailsService userDetailsService) {
+    public JwtTokenProvider(JwtProperties jwtProperties, @Qualifier("myUserDetailsService") UserDetailsService userDetailsService) {
         this.jwtProperties=jwtProperties;
         this.userDetailsService=userDetailsService;
     }
