@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -21,6 +22,10 @@ public class Cinema {
 
     private String name;
 
-    @OneToMany(mappedBy="cinemaBuilding")
-    List<CinemaHall> cinemaHalls;
+    @OneToMany(mappedBy="cinemaBuilding", cascade={CascadeType.ALL}, orphanRemoval=true)
+    private List<CinemaHall> cinemaHalls = new ArrayList<>();
+
+    public void addCinemaHall(CinemaHall cinemaHall) {
+        this.cinemaHalls.add(cinemaHall);
+    }
 }

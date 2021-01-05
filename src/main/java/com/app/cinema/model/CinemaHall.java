@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -21,18 +22,22 @@ public class CinemaHall {
     private Long id;
 
     private String name;
-//    private Integer maxChairs; było na diagramie, nie wiem po co
+    //    private Integer maxChairs; było na diagramie, nie wiem po co
     private Float screenSizeInch;
 
-    @OneToMany(mappedBy="cinemaHall")
-    private Set<Chair> chairs;
+    @OneToMany(mappedBy="cinemaHall", fetch=FetchType.LAZY, cascade={CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
+    private List<Chair> chairs = new ArrayList<>();
 
-    @ManyToOne
+    @ManyToOne()
     @JoinColumn(name="cinema_id")
     private Cinema cinemaBuilding;
 
-    @OneToMany
-    private Set<Reservation> reservation;
+    @OneToMany(mappedBy="cinemaHall", fetch=FetchType.LAZY)
+    private List<Reservation> reservation = new ArrayList<>();
+
+    public void addChair(Chair chair) {
+        this.chairs.add(chair);
+    }
 
 
 }

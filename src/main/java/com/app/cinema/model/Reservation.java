@@ -6,7 +6,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -28,14 +31,15 @@ public class Reservation {
     @JoinColumn(name="movie_id")
     private Movie movie;
 
-    @ManyToOne
+    @ManyToOne()
     @JoinColumn(name="cinema_hall_id")
     private CinemaHall cinemaHall;
 
+    @NotNull
     private BigInteger price;
 
-    @OneToMany(mappedBy="reservationTicket")
-    private Set<Chair> chairs;
+    @OneToMany(mappedBy="reservationTicket", fetch=FetchType.LAZY)
+    private List<Chair> chairs = new ArrayList<>();
 
 
 }

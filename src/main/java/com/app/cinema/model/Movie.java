@@ -6,7 +6,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -21,13 +25,26 @@ public class Movie {
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
 
-    private String name;
-
     @Basic
-    private LocalDateTime time;
+    private LocalDateTime startTime;
+    private String title;
+    private Integer year;
+    private Integer runTimeMin;
+    private String director;
+    private String actors;
+    @Column(length=512)
+    private String plot;
+    private String posteUrl;
 
-    private String type;
+    @ManyToMany(cascade={CascadeType.MERGE}, fetch=FetchType.EAGER)
+    @JoinTable(
+            name="MOVIE_GENRE",
+            joinColumns=@JoinColumn(name="movie_id"),
+            inverseJoinColumns=@JoinColumn(name="genre_id")
+    )
+    private Set<Genre> genres = new HashSet<>();
 
-    @OneToMany(mappedBy="movie")
-    private Set<Reservation> reservations;
+
+    @OneToMany(mappedBy="movie", fetch=FetchType.LAZY)
+    private List<Reservation> reservations = new ArrayList<>();
 }

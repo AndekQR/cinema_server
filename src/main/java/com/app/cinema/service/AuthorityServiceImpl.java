@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,7 +39,7 @@ public class AuthorityServiceImpl implements AuthorityService {
     }
 
     @Override
-    public List<Authority> createOrGetAuthorities(AuthorityType[] types) {
+    public Set<Authority> createOrGetAuthorities(AuthorityType[] types) {
         return Arrays.stream(types).map(element -> {
             Authority authority = this.findByType(element);
             if (authority == null) {
@@ -47,6 +48,6 @@ public class AuthorityServiceImpl implements AuthorityService {
                 return authority;
             }
             return authority;
-        }).collect(Collectors.toList());
+        }).collect(Collectors.toSet());
     }
 }

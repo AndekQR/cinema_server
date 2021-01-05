@@ -1,5 +1,6 @@
 package com.app.cinema.model;
 
+import com.app.cinema.helper.ChairType;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,14 +19,15 @@ public class Chair {
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
 
-    private String type;
+    @Enumerated(EnumType.STRING)
+    private ChairType type;
     private Integer number;
 
-    @ManyToOne
-    @JoinColumn(name="cinema_hall_id")
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="cinema_hall_id", nullable=false)
     private CinemaHall cinemaHall;
 
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="reservation_id")
     private Reservation reservationTicket;
 }

@@ -7,10 +7,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
@@ -25,31 +24,39 @@ public class User implements UserDetails, Serializable {
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
 
+    @NotNull
     private String firstName;
+    @NotNull
     private String lastName;
+    @NotNull
     private String email;
     private Boolean verified;
+    @NotNull
     private String password;
 
-    @OneToMany(mappedBy="client")
-    private List<Reservation> reservations;
+    @OneToMany(mappedBy="client", fetch=FetchType.LAZY, cascade={CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
+    private List<Reservation> reservations = new ArrayList<>();
 
-    @ManyToMany(cascade=CascadeType.MERGE, fetch=FetchType.EAGER)
+    @ManyToMany(cascade={CascadeType.MERGE}, fetch=FetchType.EAGER)
     @JoinTable(
             name="USER_AUTHORITY",
             joinColumns=@JoinColumn(name="user_id"),
             inverseJoinColumns=@JoinColumn(name="authority_id")
     )
-    private List<Authority> authorities=new ArrayList<>();
+    private Set<Authority> authorities=new HashSet<>();
 
 
-    public User(String firstName, String lastName, String email, Boolean verified, String password, List<Authority> authorities) {
+    public User(String firstName, String lastName, String email, Boolean verified, String password, Set<Authority> authorities) {
         this.firstName=firstName;
         this.lastName=lastName;
         this.email=email;
         this.verified=verified;
         this.password=password;
         this.authorities=authorities;
+    }
+
+    public void addReservation(Reservation reservation) {
+        this.reservations.add(reservation);
     }
 
     @Override
