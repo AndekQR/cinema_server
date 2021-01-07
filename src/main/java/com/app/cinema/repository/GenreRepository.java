@@ -1,6 +1,6 @@
 package com.app.cinema.repository;
 
-import com.app.cinema.model.Genre;
+import com.app.cinema.Entity.Genre;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

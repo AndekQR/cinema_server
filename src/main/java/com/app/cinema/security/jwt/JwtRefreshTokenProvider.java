@@ -1,6 +1,6 @@
 package com.app.cinema.security.jwt;
 
-import com.app.cinema.model.User;
+import com.app.cinema.Entity.User;
 import com.app.cinema.repository.JwtRefreshTokenRepository;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;

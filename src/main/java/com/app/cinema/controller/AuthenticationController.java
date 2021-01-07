@@ -1,13 +1,16 @@
 package com.app.cinema.controller;
 
+import com.app.cinema.dto.UserDto;
 import com.app.cinema.helper.AuthorityType;
 import com.app.cinema.helper.UserAlreadyInDatabaseException;
 import com.app.cinema.security.jwt.JwtRefreshToken;
-import com.app.cinema.model.User;
+import com.app.cinema.Entity.User;
 import com.app.cinema.security.AuthenticationRequest;
 import com.app.cinema.security.jwt.*;
 import com.app.cinema.service.interfaces.AuthorityService;
 import com.app.cinema.service.interfaces.UserService;
+import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,6 +25,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
+@AllArgsConstructor
 public class AuthenticationController {
 
     private final AuthenticationManager authenticationManager;
@@ -29,14 +33,8 @@ public class AuthenticationController {
     private final UserService userService;
     private final AuthorityService authorityService;
     private final JwtRefreshTokenProvider jwtRefreshTokenProvider;
+    private final ModelMapper modelMapper;
 
-    public AuthenticationController(AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider, UserService userService, AuthorityService authorityService, JwtRefreshTokenProvider jwtRefreshTokenProvider) {
-        this.authenticationManager=authenticationManager;
-        this.jwtTokenProvider=jwtTokenProvider;
-        this.userService=userService;
-        this.authorityService=authorityService;
-        this.jwtRefreshTokenProvider=jwtRefreshTokenProvider;
-    }
 
     @PostMapping("/refreshToken")
     public ResponseEntity<JwtAuthenticationResponse> refreshAccessToken(@RequestBody RefreshTokenRequest refreshTokenRequest) throws InvalidJwtAuthenticationException {
@@ -44,18 +42,24 @@ public class AuthenticationController {
             Optional<User> user = jwtRefreshTokenProvider.getUser(refreshTokenRequest.getRefreshToken());
             if (user.isPresent()){
                 String accessToken = jwtTokenProvider.createToken(user.get().getUsername(), user.get().getAuthoritiesList());
-                return ResponseEntity.ok(new JwtAuthenticationResponse(accessToken, refreshTokenRequest.getRefreshToken(), jwtTokenProvider.getExpirationDate(accessToken).getTime(), user.get()));
+                return ResponseEntity.ok(new JwtAuthenticationResponse(accessToken,
+                        refreshTokenRequest.getRefreshToken(),
+                        jwtTokenProvider.getExpirationDate(accessToken).getTime(),
+                        convertToDto(user.get())));
             }
         }
         throw new InvalidJwtAuthenticationException("Invalid Refresh Token");
     }
 
+    private UserDto convertToDto(User user) {
+        return this.modelMapper.map(user, UserDto.class);
+    }
 
     @PostMapping("/login")
-    public ResponseEntity<JwtAuthenticationResponse> login(@RequestBody AuthenticationRequest data) {
+    public ResponseEntity<JwtAuthenticationResponse> login(@RequestBody AuthenticationRequest data) throws UsernameNotFoundException {
         String username = data.getUsername();
-        User user = userService.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Username "+username+" not found"));
+        User user=userService.findByEmail(username);
+
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, data.getPassword()));
         String token = jwtTokenProvider.createToken(username, user.getAuthoritiesList());
         JwtRefreshToken refreshToken = jwtRefreshTokenProvider.createRefreshToken(user);
@@ -64,7 +68,7 @@ public class AuthenticationController {
         jwtAuthenticationResponse.setToken(token);
         jwtAuthenticationResponse.setExpires(jwtTokenProvider.getExpirationDate(token).getTime());
         jwtAuthenticationResponse.setRefreshToken(refreshToken.getToken());
-        jwtAuthenticationResponse.setUser(user);
+        jwtAuthenticationResponse.setUser(convertToDto(user));
 
         return ResponseEntity.ok(jwtAuthenticationResponse);
     }
@@ -72,23 +76,22 @@ public class AuthenticationController {
     @PostMapping("/register")
     public ResponseEntity<Map<Object, Object>> register(@RequestBody User user) throws UserAlreadyInDatabaseException {
 
-        if (userService.findByEmail(user.getEmail()).orElse(null) == null) {
+        try {
+            userService.findByEmail(user.getEmail());
+        } catch (UsernameNotFoundException e) {
             user.setAuthorities(authorityService.createOrGetAuthorities(new AuthorityType[]{AuthorityType.ROLE_USER}));
             user.setVerified(true);
             userService.save(user);
-        } else {
-            throw new UserAlreadyInDatabaseException("User already in database");
+            return new ResponseEntity<>(HttpStatus.CREATED);
         }
-        return new ResponseEntity<>(HttpStatus.CREATED);
+
+        throw new UserAlreadyInDatabaseException("User already in database");
     }
 
     @GetMapping("/logout")
-    public ResponseEntity.BodyBuilder logout(@AuthenticationPrincipal UserDetails userDetails) {
-        Optional<User> user = userService.findByEmail(userDetails.getUsername());
-        if (user.isPresent()){
-            jwtRefreshTokenProvider.deleteOldToken(user.get());
-            return ResponseEntity.ok();
-        }
-        throw new UsernameNotFoundException("User not found");
+    public ResponseEntity.BodyBuilder logout(@AuthenticationPrincipal UserDetails userDetails) throws UsernameNotFoundException {
+        User user=userService.findByEmail(userDetails.getUsername());
+        jwtRefreshTokenProvider.deleteOldToken(user);
+        return ResponseEntity.ok();
     }
 }

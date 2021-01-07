@@ -1,13 +1,12 @@
 package com.app.cinema.service;
 
 import com.app.cinema.helper.AuthorityType;
-import com.app.cinema.model.Authority;
+import com.app.cinema.Entity.Authority;
 import com.app.cinema.repository.AuthorityRepository;
 import com.app.cinema.service.interfaces.AuthorityService;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 

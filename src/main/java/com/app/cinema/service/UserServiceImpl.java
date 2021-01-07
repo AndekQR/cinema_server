@@ -1,7 +1,8 @@
 package com.app.cinema.service;
 
 import com.app.cinema.helper.AuthorityType;
-import com.app.cinema.model.User;
+import com.app.cinema.helper.NotFoundInDB;
+import com.app.cinema.Entity.User;
 import com.app.cinema.repository.UserRepository;
 import com.app.cinema.security.MyPasswordEncoder;
 import com.app.cinema.service.interfaces.AuthorityService;
@@ -30,20 +31,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> findByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public User findByEmail(String email) throws UsernameNotFoundException {
+        Optional<User> optional=userRepository.findByEmail(email);
+        if (optional.isPresent()) return optional.get();
+        else throw new UsernameNotFoundException("User email '"+email+"' not exist");
     }
 
     @Override
     public void save(User user) {
-        if (this.findByEmail(user.getEmail()).orElse(null) == null) {
-            if (!user.getPassword().isEmpty()) {
-                user.setPassword(passwordEncoder.encode(user.getPassword()));
-            }
-            user.setAuthorities(authorityService.createOrGetAuthorities(new AuthorityType[]{AuthorityType.ROLE_USER}));
-            userRepository.save(user);
-            userRepository.flush();
+        try{
+            this.findByEmail(user.getEmail());
+        } catch (UsernameNotFoundException usernameNotFoundException) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
+        user.setAuthorities(authorityService.createOrGetAuthorities(new AuthorityType[]{AuthorityType.ROLE_USER}));
+        userRepository.save(user);
+        userRepository.flush();
     }
 
     //no usages
@@ -56,9 +59,8 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(userToUpdate);
     }
 
-    public User getUser(String username) {
-        return this.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
+    public User getUser(String username) throws NotFoundInDB {
+        return this.findByEmail(username);
     }
 
 

@@ -17,6 +17,6 @@ public class MyUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return userService.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("Invalid username or password"));
+        return userService.findByEmail(email);
     }
 }

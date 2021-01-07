@@ -1,9 +1,8 @@
 package com.app.cinema.service.interfaces;
 
 import com.app.cinema.helper.AuthorityType;
-import com.app.cinema.model.Authority;
+import com.app.cinema.Entity.Authority;
 
-import java.util.List;
 import java.util.Set;
 
 public interface AuthorityService {

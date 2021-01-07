@@ -1,4 +1,4 @@
-package com.app.cinema.model;
+package com.app.cinema.Entity;
 
 import lombok.AccessLevel;
 import lombok.Data;
@@ -12,8 +12,8 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name="CINEMA")
-public class Cinema {
+@Table(name="GENRE")
+public class Genre {
 
     @Id
     @Setter(AccessLevel.PRIVATE)
@@ -22,10 +22,7 @@ public class Cinema {
 
     private String name;
 
-    @OneToMany(mappedBy="cinemaBuilding", cascade={CascadeType.ALL}, orphanRemoval=true)
-    private List<CinemaHall> cinemaHalls = new ArrayList<>();
+    @ManyToMany(mappedBy="genres", fetch=FetchType.LAZY)
+    private List<Movie> movies = new ArrayList<>();
 
-    public void addCinemaHall(CinemaHall cinemaHall) {
-        this.cinemaHalls.add(cinemaHall);
-    }
 }

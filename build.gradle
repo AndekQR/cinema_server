@@ -22,6 +22,10 @@ idea {
 	}
 }
 
+test {
+	useJUnitPlatform()
+}
+
 repositories {
 	mavenCentral()
 }
@@ -37,13 +41,16 @@ dependencies {
 	implementation 'org.slf4j:slf4j-api:1.7.30'
 	implementation 'com.github.javafaker:javafaker:1.0.2'
 	implementation 'com.google.code.gson:gson:2.8.6'
-
-
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
+//	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.0")
+
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+		exclude group: 'junit', module: 'junit'
 	}
 }
 

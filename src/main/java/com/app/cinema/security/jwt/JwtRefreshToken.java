@@ -1,6 +1,6 @@
 package com.app.cinema.security.jwt;
 
-import com.app.cinema.model.User;
+import com.app.cinema.Entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

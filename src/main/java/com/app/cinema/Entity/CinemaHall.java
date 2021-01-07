@@ -1,4 +1,4 @@
-package com.app.cinema.model;
+package com.app.cinema.Entity;
 
 import lombok.AccessLevel;
 import lombok.Data;
@@ -8,7 +8,6 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -22,13 +21,12 @@ public class CinemaHall {
     private Long id;
 
     private String name;
-    //    private Integer maxChairs; było na diagramie, nie wiem po co
     private Float screenSizeInch;
 
-    @OneToMany(mappedBy="cinemaHall", fetch=FetchType.LAZY, cascade={CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
+    @OneToMany(mappedBy="cinemaHall", cascade={CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     private List<Chair> chairs = new ArrayList<>();
 
-    @ManyToOne()
+    @ManyToOne(optional=false)
     @JoinColumn(name="cinema_id")
     private Cinema cinemaBuilding;
 

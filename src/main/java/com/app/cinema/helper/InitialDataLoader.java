@@ -1,12 +1,11 @@
 package com.app.cinema.helper;
 
-import com.app.cinema.model.*;
+import com.app.cinema.Entity.*;
 import com.app.cinema.repository.*;
 import com.app.cinema.service.interfaces.MovieService;
 import com.app.cinema.service.interfaces.UserService;
 import com.github.javafaker.Faker;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.AllArgsConstructor;
@@ -19,7 +18,10 @@ import java.io.InputStream;
 import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.TimeZone;
 
 @Component
 @AllArgsConstructor
@@ -61,14 +63,14 @@ public class InitialDataLoader implements ApplicationRunner {
     }
 
     private List<Movie> getMovies(Faker faker) {
-        List<Movie> movies = new ArrayList<>();
+        List<Movie> movies=new ArrayList<>();
         try (InputStream inputStream=new URL(moviesJsonUrl).openStream()) {
             String json=new String(inputStream.readAllBytes());
             JsonObject jsonObject=JsonParser.parseString(json).getAsJsonObject();
             JsonArray moviesArrayJson=jsonObject.getAsJsonArray("movies");
             moviesArrayJson.forEach(jsonElement -> {
                 JsonObject object=jsonElement.getAsJsonObject();
-                Movie movie = new Movie();
+                Movie movie=new Movie();
                 movie.setPlot(object.get("plot").getAsString());
                 movie.setPosteUrl(object.get("posterUrl").getAsString());
                 movie.setActors(object.get("actors").getAsString());
@@ -79,7 +81,7 @@ public class InitialDataLoader implements ApplicationRunner {
                 long timeMs=faker.number().numberBetween(1619863200000L, 1651399200000L);
                 movie.setStartTime(LocalDateTime.ofInstant(Instant.ofEpochMilli(timeMs), TimeZone.getDefault().toZoneId()));
 
-                List<String> genresNames = new ArrayList<>();
+                List<String> genresNames=new ArrayList<>();
                 JsonArray generesJsonArray=object.getAsJsonArray("genres");
                 generesJsonArray.forEach(jsonElement1 -> {
                     genresNames.add(jsonElement1.getAsString());
