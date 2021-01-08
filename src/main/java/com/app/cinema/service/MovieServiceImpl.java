@@ -1,12 +1,16 @@
 package com.app.cinema.service;
 
+import com.app.cinema.helper.EntitySpecification;
 import com.app.cinema.helper.NotFoundInDB;
 import com.app.cinema.Entity.Genre;
 import com.app.cinema.Entity.Movie;
+import com.app.cinema.model.PaginationRequest;
 import com.app.cinema.repository.GenreRepository;
 import com.app.cinema.repository.MovieRepository;
 import com.app.cinema.service.interfaces.MovieService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -42,4 +46,19 @@ public class MovieServiceImpl implements MovieService {
         if (optionalMovie.isPresent()) return optionalMovie.get();
         else throw new NotFoundInDB("Movie id "+id+" not exist");
     }
+
+    @Override
+    public List<Movie> getMoviesPage(PaginationRequest paginationRequest) {
+        Page<Movie> all=this.movieRepository.findAll(Specification.where(
+                EntitySpecification.textAtLeastInOneColumn(paginationRequest.getSearchQuery())),
+                paginationRequest.getPageable()
+        );
+        return all.getContent();
+    }
+
+    @Override
+    public List<Movie> getAllMovies() {
+        return this.movieRepository.findAll();
+    }
+
 }

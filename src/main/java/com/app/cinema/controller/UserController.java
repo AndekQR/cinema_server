@@ -16,24 +16,20 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class UserController {
 
-    private final ModelMapper modelMapper;
+
     private final UserService userService;
+    private final Mapper mapper;
 
 
     @GetMapping("/me")
     public ResponseEntity<UserDto> user(@AuthenticationPrincipal UserDetails userDetails) {
         try {
             User user=userService.findByEmail(userDetails.getUsername());
-            return ResponseEntity.ok(this.convertToDto(user));
+            return ResponseEntity.ok(mapper.mapObject(user, UserDto.class));
         } catch (UsernameNotFoundException e) {
             throw new UsernameNotFoundException("User not found");
 
         }
     }
-
-    private UserDto convertToDto(User user) {
-            return this.modelMapper.map(user, UserDto.class);
-    }
-
 
 }

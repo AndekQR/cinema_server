@@ -33,7 +33,7 @@ public class AuthenticationController {
     private final UserService userService;
     private final AuthorityService authorityService;
     private final JwtRefreshTokenProvider jwtRefreshTokenProvider;
-    private final ModelMapper modelMapper;
+    private final Mapper mapper;
 
 
     @PostMapping("/refreshToken")
@@ -45,15 +45,12 @@ public class AuthenticationController {
                 return ResponseEntity.ok(new JwtAuthenticationResponse(accessToken,
                         refreshTokenRequest.getRefreshToken(),
                         jwtTokenProvider.getExpirationDate(accessToken).getTime(),
-                        convertToDto(user.get())));
+                        mapper.mapObject(user.get(), UserDto.class)));
             }
         }
         throw new InvalidJwtAuthenticationException("Invalid Refresh Token");
     }
 
-    private UserDto convertToDto(User user) {
-        return this.modelMapper.map(user, UserDto.class);
-    }
 
     @PostMapping("/login")
     public ResponseEntity<JwtAuthenticationResponse> login(@RequestBody AuthenticationRequest data) throws UsernameNotFoundException {
@@ -68,7 +65,7 @@ public class AuthenticationController {
         jwtAuthenticationResponse.setToken(token);
         jwtAuthenticationResponse.setExpires(jwtTokenProvider.getExpirationDate(token).getTime());
         jwtAuthenticationResponse.setRefreshToken(refreshToken.getToken());
-        jwtAuthenticationResponse.setUser(convertToDto(user));
+        jwtAuthenticationResponse.setUser(mapper.mapObject(user, UserDto.class));
 
         return ResponseEntity.ok(jwtAuthenticationResponse);
     }
