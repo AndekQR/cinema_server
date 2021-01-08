@@ -48,12 +48,12 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public List<Movie> getMoviesPage(PaginationRequest paginationRequest) {
+    public Page<Movie> getMoviesPage(PaginationRequest paginationRequest) {
         Page<Movie> all=this.movieRepository.findAll(Specification.where(
                 EntitySpecification.textAtLeastInOneColumn(paginationRequest.getSearchQuery())),
                 paginationRequest.getPageable()
         );
-        return all.getContent();
+        return all;
     }
 
     @Override

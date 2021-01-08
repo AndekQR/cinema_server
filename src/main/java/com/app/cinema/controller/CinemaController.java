@@ -7,10 +7,12 @@ import com.app.cinema.dto.ReservationDto;
 import com.app.cinema.helper.ChairReservedException;
 import com.app.cinema.helper.NotFoundInDB;
 import com.app.cinema.model.PaginationRequest;
+import com.app.cinema.model.PaginationResponse;
 import com.app.cinema.model.ReservationRequest;
 import com.app.cinema.service.interfaces.MovieService;
 import com.app.cinema.service.interfaces.ReservationService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
@@ -43,10 +45,17 @@ public class CinemaController {
 
 
     @GetMapping("/movies")
-    public ResponseEntity<List<MovieDto>> getMovies(PaginationRequest paginationRequest) {
-        List<Movie> moviesPage=this.movieService.getMoviesPage(paginationRequest);
-        List<MovieDto> movieDtos=mapper.mapList(moviesPage, MovieDto.class);
-        return ResponseEntity.ok(movieDtos);
+    public ResponseEntity<PaginationResponse<MovieDto>> getMovies(PaginationRequest paginationRequest) {
+        Page<Movie> moviesPage=this.movieService.getMoviesPage(paginationRequest);
+        PaginationResponse<MovieDto> paginationResponse = PaginationResponse.<MovieDto>builder()
+                .page(moviesPage.getNumber())
+                .content(mapper.mapList(moviesPage.getContent(), MovieDto.class))
+                .size(moviesPage.getSize())
+                .sortMethod(paginationRequest.getSortOrder())
+                .totalRows(moviesPage.getTotalElements())
+                .sortedBy(paginationRequest.getSortBy())
+                .build();
+        return ResponseEntity.ok(paginationResponse);
     }
 
 

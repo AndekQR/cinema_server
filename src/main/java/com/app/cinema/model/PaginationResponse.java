@@ -13,4 +13,5 @@ public class PaginationResponse<T> {
     private Integer page;
     private Integer size;
     private String sortMethod;
+    private String sortedBy;
 }
