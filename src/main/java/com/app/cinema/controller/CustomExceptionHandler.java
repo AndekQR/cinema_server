@@ -1,7 +1,7 @@
 package com.app.cinema.controller;
 
 import com.app.cinema.helper.ChairReservedException;
-import com.app.cinema.helper.ErrorResponse;
+import com.app.cinema.model.ErrorResponse;
 import com.app.cinema.helper.NotFoundInDB;
 import com.app.cinema.helper.UserAlreadyInDatabaseException;
 import com.app.cinema.security.jwt.InvalidJwtAuthenticationException;

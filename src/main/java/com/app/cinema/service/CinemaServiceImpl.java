@@ -9,6 +9,7 @@ import com.app.cinema.service.interfaces.CinemaService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -30,5 +31,15 @@ public class CinemaServiceImpl implements CinemaService {
         Optional<Cinema> optionalCinema=cinemaRepository.findById(id);
         if (optionalCinema.isPresent()) return optionalCinema.get();
         else throw new NotFoundInDB("Cinema id "+id+ " not exist");
+    }
+
+    @Override
+    public List<Cinema> getAllCinemas() {
+        return this.cinemaRepository.findAll();
+    }
+
+    @Override
+    public List<CinemaHall> findCinemaHallsByCinemaId(Long cinemaId) {
+        return this.cinemaHallRepository.findAllByCinemaBuildingId(cinemaId);
     }
 }

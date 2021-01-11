@@ -1,13 +1,12 @@
 package com.app.cinema.dto;
 
+import com.app.cinema.Entity.Cinema;
 import lombok.Data;
-
-import java.util.List;
 
 @Data
 public class CinemaHallDto {
     private Long id;
     private String name;
     private Float screenSizeInch;
-    private List<ChairDto> chairs;
+    private CinemaDto cinemaBuilding;
 }

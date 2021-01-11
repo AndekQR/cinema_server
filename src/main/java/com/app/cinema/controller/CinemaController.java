@@ -1,14 +1,14 @@
 package com.app.cinema.controller;
 
-import com.app.cinema.Entity.Movie;
-import com.app.cinema.Entity.Reservation;
-import com.app.cinema.dto.MovieDto;
-import com.app.cinema.dto.ReservationDto;
+import com.app.cinema.Entity.*;
+import com.app.cinema.dto.*;
 import com.app.cinema.helper.ChairReservedException;
 import com.app.cinema.helper.NotFoundInDB;
 import com.app.cinema.model.PaginationRequest;
 import com.app.cinema.model.PaginationResponse;
 import com.app.cinema.model.ReservationRequest;
+import com.app.cinema.service.interfaces.ChairService;
+import com.app.cinema.service.interfaces.CinemaService;
 import com.app.cinema.service.interfaces.MovieService;
 import com.app.cinema.service.interfaces.ReservationService;
 import lombok.AllArgsConstructor;
@@ -18,12 +18,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.sql.ResultSet;
 import java.util.List;
 
 @RestController
@@ -33,6 +32,8 @@ public class CinemaController {
     private final ReservationService reservationService;
     private final Mapper mapper;
     private final MovieService movieService;
+    private final ChairService chairService;
+    private final CinemaService cinemaService;
 
     @PostMapping("/makeReservation")
     public ResponseEntity<ReservationDto> makeReservation(@AuthenticationPrincipal UserDetails userDetails, @NonNull @RequestBody ReservationRequest reservationRequest) throws NotFoundInDB, ChairReservedException {
@@ -58,5 +59,44 @@ public class CinemaController {
         return ResponseEntity.ok(paginationResponse);
     }
 
+    @GetMapping("/cinemaHall/{id}/chairs")
+    public ResponseEntity<List<ChairDto>> getChairsByCinemaHall(@NotNull @PathVariable(name="id") Long cinemaHallId) {
+        List<Chair> chairsByCinemaHallId=chairService.findChairsByCinemaHallId(cinemaHallId);
+        return ResponseEntity.ok(mapper.mapList(chairsByCinemaHallId, ChairDto.class));
+    }
+
+    @GetMapping("/cinema/{id}/chairs")
+    public ResponseEntity<List<ChairDto>> getChairsByCinema(@NotNull @PathVariable(name="id") Long cinemaId) throws NotFoundInDB {
+        List<Chair> chairsByCinemaId=chairService.findChairsByCinemaId(cinemaId);
+        return ResponseEntity.ok(mapper.mapList(chairsByCinemaId, ChairDto.class));
+    }
+
+    @GetMapping("/cinema")
+    public ResponseEntity<List<CinemaDto>> getCinemas() {
+        List<Cinema> allCinemas=this.cinemaService.getAllCinemas();
+        List<CinemaDto> mapped=mapper.mapList(allCinemas, CinemaDto.class);
+        return ResponseEntity.ok(mapped);
+    }
+
+    @GetMapping("/cinema/{id}")
+    public ResponseEntity<CinemaDto> getCinema(@NotNull @PathVariable(name="id") Long cinemaId) throws NotFoundInDB {
+        Cinema cinemaById=this.cinemaService.findCinemaById(cinemaId);
+        CinemaDto cinemaDto=mapper.mapObject(cinemaById, CinemaDto.class);
+        return ResponseEntity.ok(cinemaDto);
+    }
+
+    @GetMapping("/cinema/{id}/cinemaHall")
+    public ResponseEntity<List<CinemaHallDto>> getCinemaHallsByCinema(@NotNull @PathVariable(name="id") Long cinemaId) {
+        List<CinemaHall> cinemaHallsByCinemaId=cinemaService.findCinemaHallsByCinemaId(cinemaId);
+        List<CinemaHallDto> mapped=mapper.mapList(cinemaHallsByCinemaId, CinemaHallDto.class);
+        return ResponseEntity.ok(mapped);
+    }
+
+    @GetMapping("/cinema/cinemaHall/{id}")
+    public ResponseEntity<CinemaHallDto> getCinemaHall(@NotNull @PathVariable(name="id") Long cinemaHallId) throws NotFoundInDB {
+        CinemaHall cinemaHallById=this.cinemaService.findCinemaHallById(cinemaHallId);
+        CinemaHallDto cinemaHallDto=mapper.mapObject(cinemaHallById, CinemaHallDto.class);
+        return ResponseEntity.ok(cinemaHallDto);
+    }
 
 }

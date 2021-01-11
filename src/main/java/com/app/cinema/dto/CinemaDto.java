@@ -8,5 +8,4 @@ import java.util.List;
 public class CinemaDto {
     private Long id;
     private String name;
-    private List<CinemaHallDto> cinemaHalls;
 }
