@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -56,6 +57,11 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ChairReservedException.class)
     public ResponseEntity<ErrorResponse> handleException(ChairReservedException exception, WebRequest request) {
+        return asResponseEntity(exception.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(RequestRejectedException.class)
+    public ResponseEntity<ErrorResponse> handelException(RequestRejectedException exception, WebRequest request) {
         return asResponseEntity(exception.getMessage(), HttpStatus.BAD_REQUEST);
     }
 

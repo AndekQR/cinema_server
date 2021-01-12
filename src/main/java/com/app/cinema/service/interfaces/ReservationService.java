@@ -9,4 +9,5 @@ import java.util.List;
 
 public interface ReservationService {
     Reservation createReservation(String userEmail, List<Long> chairIds, Long moveId, BigDecimal price) throws NotFoundInDB, ChairReservedException;
+    List<Reservation> getUserReservations(String username);
 }

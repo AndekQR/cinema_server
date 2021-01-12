@@ -6,6 +6,7 @@ import com.app.cinema.helper.NotFoundInDB;
 import com.app.cinema.repository.ReservationRepository;
 import com.app.cinema.service.interfaces.*;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -32,7 +33,6 @@ public class ReservationServiceImpl implements ReservationService {
             } else {
                 //jezeli fotel nie istnieje metoda isReserved wyrzuci NotFoundInDB
                 Chair chair=chairService.findChair(chairId);
-                CinemaHall cinemaHall=chair.getCinemaHall();
                 chairsToReserve.add(chair);
             }
         }
@@ -47,5 +47,11 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setPrice(price);
 
         return reservationRepository.save(reservation);
+    }
+
+    @Override
+    public List<Reservation> getUserReservations(String username) throws UsernameNotFoundException {
+        User user = userService.findByEmail(username);
+        return user.getReservations();
     }
 }

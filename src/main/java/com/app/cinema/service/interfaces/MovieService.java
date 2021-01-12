@@ -14,5 +14,6 @@ public interface MovieService {
     Set<Genre> saveGenres(List<String> genreNames);
     Movie getMovieById(Long id) throws NotFoundInDB;
     Page<Movie> getMoviesPage(PaginationRequest paginationRequest);
-    List<Movie> getAllMovies();
+    List<Genre> getAllGenres();
+    List<Movie> findMoviesByGenresName(List<String> names);
 }

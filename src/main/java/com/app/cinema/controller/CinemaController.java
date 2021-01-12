@@ -18,12 +18,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @AllArgsConstructor
@@ -35,13 +37,20 @@ public class CinemaController {
     private final ChairService chairService;
     private final CinemaService cinemaService;
 
-    @PostMapping("/makeReservation")
+    @PostMapping("/reservation")
     public ResponseEntity<ReservationDto> makeReservation(@AuthenticationPrincipal UserDetails userDetails, @NonNull @RequestBody ReservationRequest reservationRequest) throws NotFoundInDB, ChairReservedException {
         Reservation reservation=reservationService.createReservation(userDetails.getUsername(),
                 reservationRequest.getChairIds(),
                 reservationRequest.getMoveId(),
                 BigDecimal.valueOf(reservationRequest.getPrice()));
         return new ResponseEntity<>(mapper.mapObject(reservation, ReservationDto.class), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/reservations")
+    public ResponseEntity<List<ReservationDto>> getUserReservations(@AuthenticationPrincipal UserDetails userDetails) throws UsernameNotFoundException {
+        List<Reservation> userReservations=reservationService.getUserReservations(userDetails.getUsername());
+        List<ReservationDto> reservationDtos=mapper.mapList(userReservations, ReservationDto.class);
+        return ResponseEntity.ok(reservationDtos);
     }
 
 
@@ -97,6 +106,20 @@ public class CinemaController {
         CinemaHall cinemaHallById=this.cinemaService.findCinemaHallById(cinemaHallId);
         CinemaHallDto cinemaHallDto=mapper.mapObject(cinemaHallById, CinemaHallDto.class);
         return ResponseEntity.ok(cinemaHallDto);
+    }
+
+    @GetMapping("/genres")
+    public ResponseEntity<List<GenreDto>> getAllGenres() {
+        List<Genre> allGenres=this.movieService.getAllGenres();
+        List<GenreDto> genreDtos=mapper.mapList(allGenres, GenreDto.class);
+        return ResponseEntity.ok(genreDtos);
+    }
+
+    @GetMapping("/movies/{genre}")
+    public ResponseEntity<List<MovieDto>> getMoviesByGenre(@NotNull @PathVariable(name="genre") List<String> genres) {
+        List<Movie> moviesByGenresName=movieService.findMoviesByGenresName(genres);
+        List<MovieDto> movieDtos=mapper.mapList(moviesByGenresName, MovieDto.class);
+        return ResponseEntity.ok(movieDtos);
     }
 
 }

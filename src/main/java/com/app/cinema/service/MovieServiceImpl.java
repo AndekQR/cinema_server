@@ -13,9 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -57,8 +55,19 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public List<Movie> getAllMovies() {
-        return this.movieRepository.findAll();
+    public List<Genre> getAllGenres() {
+        return this.genreRepository.findAll();
     }
+
+    @Override
+    public List<Movie> findMoviesByGenresName(List<String> names) {
+        Set<Genre> genreList = new HashSet<>();
+        names.forEach(name -> {
+            Optional<Genre> byName=this.genreRepository.findByName(name);
+            byName.ifPresent(genreList::add);
+        });
+        return movieRepository.findAllByGenres(genreList);
+    }
+
 
 }
