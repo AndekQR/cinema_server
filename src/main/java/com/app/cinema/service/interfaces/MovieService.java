@@ -7,6 +7,7 @@ import com.app.cinema.model.PaginationRequest;
 import org.springframework.data.domain.Page;
 
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -16,4 +17,5 @@ public interface MovieService {
     Page<Movie> getMoviesPage(PaginationRequest paginationRequest);
     List<Genre> getAllGenres();
     List<Movie> findMoviesByGenresName(List<String> names);
+    List<Movie> findMoviesByStartTime(LocalDateTime begin, LocalDateTime end);
 }

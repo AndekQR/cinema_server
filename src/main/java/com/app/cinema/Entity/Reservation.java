@@ -1,9 +1,6 @@
 package com.app.cinema.Entity;
 
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -31,6 +28,7 @@ public class Reservation {
 
     @ManyToOne
     @JoinColumn(name="movie_id")
+    @Getter
     private Movie movie;
 
     @ManyToOne()

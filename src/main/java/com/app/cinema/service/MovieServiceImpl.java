@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -69,5 +70,8 @@ public class MovieServiceImpl implements MovieService {
         return movieRepository.findAllByGenres(genreList);
     }
 
-
+    @Override
+    public List<Movie> findMoviesByStartTime(LocalDateTime begin, LocalDateTime end) {
+        return movieRepository.findAllByStartTimeBetween(begin, end);
+    }
 }

@@ -1,9 +1,6 @@
 package com.app.cinema.Entity;
 
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -20,6 +17,7 @@ public class Genre {
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
 
+    @Getter
     private String name;
 
     @ManyToMany(mappedBy="genres", fetch=FetchType.LAZY)

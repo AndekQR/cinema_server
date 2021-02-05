@@ -1,9 +1,6 @@
 package com.app.cinema.Entity;
 
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -40,6 +37,7 @@ public class Movie {
             joinColumns=@JoinColumn(name="movie_id"),
             inverseJoinColumns=@JoinColumn(name="genre_id")
     )
+    @Getter
     private Set<Genre> genres = new HashSet<>();
 
 

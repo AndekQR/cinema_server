@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -20,4 +21,5 @@ public interface MovieRepository extends JpaRepository<Movie, Long>, JpaSpecific
             "    GROUP BY y)")
     List<Movie> findAllByGenres(Set<Genre> genres);
 
+    List<Movie> findAllByStartTimeBetween(LocalDateTime begin, LocalDateTime end);
 }
