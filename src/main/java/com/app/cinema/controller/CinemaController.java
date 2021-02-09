@@ -133,7 +133,10 @@ public class CinemaController {
         // 2. Zbierz wszystkie gatunki (powtarzające się) TODO ładniej to napisać
         // 3. Mapuj gatunek (nazwa gatunku dla uproszczenia dalej) - liczba wystąpień
         Map<String, Integer> occurences = new HashMap<>();
+        Set<Long> watchedMovieIds = new HashSet<>();
         for (Reservation res: userReservations) {
+            // Do usuwania obejrzanych filmów później
+            watchedMovieIds.add(res.getMovie().getId());
             for (Genre genre: res.getMovie().getGenres()) {
                 Integer count = occurences.putIfAbsent(genre.getName(), 1);
                 if (count != null) {
@@ -155,6 +158,8 @@ public class CinemaController {
             // Zwróć tylko to gdzie znaleziono filmy (jakbym włączał wybierania po dacie),
             // bez tego znajdzie raczej zawsze
             List<Movie> moviesByGenresName=movieService.findMoviesByGenresName(Collections.singletonList(genre));
+            // Usuń już obejrzane filmy (czy naprawdę trzeba?)
+            moviesByGenresName.removeIf(p -> watchedMovieIds.contains(p.getId()));
             if (!moviesByGenresName.isEmpty()) {
                 System.out.println("Znaleziono filmy z ulubionego gatunku: "+genre);
                 List<MovieDto> movieDtos=mapper.mapList(moviesByGenresName, MovieDto.class);
