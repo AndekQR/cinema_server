@@ -1,4 +1,4 @@
-package com.app.cinema.security.jwt;
+package com.app.cinema.Entity;
 
 import com.app.cinema.Entity.User;
 import lombok.AllArgsConstructor;

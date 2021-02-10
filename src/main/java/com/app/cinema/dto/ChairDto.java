@@ -1,6 +1,5 @@
 package com.app.cinema.dto;
 
-import com.app.cinema.Entity.CinemaHall;
 import com.app.cinema.helper.ChairType;
 import lombok.Data;
 
