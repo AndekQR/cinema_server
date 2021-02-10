@@ -37,7 +37,6 @@ public class Movie {
             joinColumns=@JoinColumn(name="movie_id"),
             inverseJoinColumns=@JoinColumn(name="genre_id")
     )
-    @Getter
     private Set<Genre> genres = new HashSet<>();
 
 

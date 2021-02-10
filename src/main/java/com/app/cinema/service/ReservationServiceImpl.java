@@ -54,4 +54,9 @@ public class ReservationServiceImpl implements ReservationService {
         User user = userService.findByEmail(username);
         return user.getReservations();
     }
+
+    @Override
+    public List<Reservation> findByMovieAndCinemaHall(Long movieId, Long cinemaHallId) {
+        return this.reservationRepository.findAllByMovieIdAndCinemaHallId(movieId, cinemaHallId);
+    }
 }

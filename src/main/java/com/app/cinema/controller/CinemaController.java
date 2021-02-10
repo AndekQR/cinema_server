@@ -57,6 +57,18 @@ public class CinemaController {
         return ResponseEntity.ok(reservationDtos);
     }
 
+    @GetMapping("reservations/chairs/{cinemaHallId}/{movieId}")
+    public ResponseEntity<List<ChairDto>> getReservedChairs(@PathVariable(name="cinemaHallId") Long cinemaHallId,
+                                                            @PathVariable(name="movieId") Long movieId) {
+
+        List<Reservation> byMovieAndCinemaHall=this.reservationService.findByMovieAndCinemaHall(movieId, cinemaHallId);
+        List<Chair> listOfChairs=byMovieAndCinemaHall.stream()
+                .flatMap(element -> element.getChairs().stream())
+                .collect(Collectors.toList());
+        List<ChairDto> chairDtos=this.mapper.mapList(listOfChairs, ChairDto.class);
+        return ResponseEntity.ok(chairDtos);
+    }
+
 
     @GetMapping("/movies")
     public ResponseEntity<PaginationResponse<MovieDto>> getMovies(PaginationRequest paginationRequest) {
