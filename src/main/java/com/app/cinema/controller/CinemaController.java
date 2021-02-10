@@ -12,6 +12,8 @@ import com.app.cinema.service.interfaces.CinemaService;
 import com.app.cinema.service.interfaces.MovieService;
 import com.app.cinema.service.interfaces.ReservationService;
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,8 +26,10 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
-import java.util.List;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @AllArgsConstructor
@@ -122,4 +126,46 @@ public class CinemaController {
         return ResponseEntity.ok(movieDtos);
     }
 
+    @GetMapping("/movies/recommended")
+    public ResponseEntity<List<MovieDto>> getRecommendedMoviesForUser(@AuthenticationPrincipal UserDetails userDetails) throws UsernameNotFoundException {
+        // 1. Pobierz historyczne rezerwacje użytkownika
+        List<Reservation> userReservations=reservationService.getUserReservations(userDetails.getUsername());
+        // 2. Zbierz wszystkie gatunki (powtarzające się) TODO ładniej to napisać
+        // 3. Mapuj gatunek (nazwa gatunku dla uproszczenia dalej) - liczba wystąpień
+        Map<String, Integer> occurences = new HashMap<>();
+        Set<Long> watchedMovieIds = new HashSet<>();
+        for (Reservation res: userReservations) {
+            // Do usuwania obejrzanych filmów później
+            watchedMovieIds.add(res.getMovie().getId());
+            for (Genre genre: res.getMovie().getGenres()) {
+                Integer count = occurences.putIfAbsent(genre.getName(), 1);
+                if (count != null) {
+                    occurences.replace(genre.getName(), count+1);
+                }
+            }
+        }
+        // 4. Wyszukaj obecnie występujące filmy z ulubionego gatunku
+        // to jest lista dla czytelności, żeby mieć jbc możliwość uwzględnić więcej niż dwa gatunki
+        List<String> favoriteGenres = occurences.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+        System.out.println(favoriteGenres);
+        // 5. Wybierz filmy z danego gatunku zaczynając od ulubionego (najwyższy count w rezerwacjach)
+        // Ignoruj datę startu filmu jak w pozostałych funkcjach dla zgodności
+        for (String genre: favoriteGenres) {
+            // Zwróć tylko to gdzie znaleziono filmy (jakbym włączał wybierania po dacie),
+            // bez tego znajdzie raczej zawsze
+            List<Movie> moviesByGenresName=movieService.findMoviesByGenresName(Collections.singletonList(genre));
+            // Usuń już obejrzane filmy (czy naprawdę trzeba?)
+            moviesByGenresName.removeIf(p -> watchedMovieIds.contains(p.getId()));
+            if (!moviesByGenresName.isEmpty()) {
+                System.out.println("Znaleziono filmy z ulubionego gatunku: "+genre);
+                List<MovieDto> movieDtos=mapper.mapList(moviesByGenresName, MovieDto.class);
+                return ResponseEntity.ok(movieDtos);
+            }
+        }
+        return ResponseEntity.ok(Collections.emptyList());
+    }
 }

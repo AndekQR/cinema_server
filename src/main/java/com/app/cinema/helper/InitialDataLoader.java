@@ -78,7 +78,9 @@ public class InitialDataLoader implements ApplicationRunner {
                 movie.setRunTimeMin(object.get("runtime").getAsInt());
                 movie.setYear(object.get("year").getAsInt());
                 movie.setTitle(object.get("title").getAsString());
-                long timeMs=faker.number().numberBetween(1619863200000L, 1651399200000L);
+                // Zmienić żeby trwało od jakiegoś czasu
+                //long timeMs=faker.number().numberBetween(1619863200000L, 1651399200000L);
+                long timeMs=faker.number().numberBetween(1554069600000L, 1617228000000L);
                 movie.setStartTime(LocalDateTime.ofInstant(Instant.ofEpochMilli(timeMs), TimeZone.getDefault().toZoneId()));
 
                 List<String> genresNames=new ArrayList<>();
