@@ -175,10 +175,10 @@ public class CinemaController {
         for (String genre: favoriteGenres) {
             // Zwróć tylko to gdzie znaleziono filmy (jakbym włączał wybierania po dacie),
             // bez tego znajdzie raczej zawsze
-            Page<Movie> moviesByGenresName=movieService.findMoviesByGenresName(Collections.singletonList(genre),
+            Page<Movie> moviesByGenresName=movieService.findUnwatchedMoviesByGenreNames(
+                    Collections.singletonList(genre),
+                    watchedMovieIds,
                     paginationRequest);
-            // Usuń już obejrzane filmy (czy naprawdę trzeba?)
-//            moviesByGenresName.removeIf(p -> watchedMovieIds.contains(p.getId()));
             if (!moviesByGenresName.isEmpty()) {
                 System.out.println("Znaleziono filmy z ulubionego gatunku: "+genre);
 //                List<MovieDto> movieDtos=mapper.mapList(moviesByGenresName, MovieDto.class);

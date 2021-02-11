@@ -5,6 +5,7 @@ import com.app.cinema.Entity.Genre;
 import com.app.cinema.Entity.Movie;
 import com.app.cinema.model.PaginationRequest;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 
 import java.time.LocalDateTime;
@@ -18,4 +19,5 @@ public interface MovieService {
     List<Genre> getAllGenres();
     Page<Movie> findMoviesByGenresName(List<String> names, PaginationRequest paginationRequest);
     List<Movie> findMoviesByStartTime(LocalDateTime begin, LocalDateTime end);
+    Page<Movie> findUnwatchedMoviesByGenreNames(List<String> names, Set<Long> watchedIds, PaginationRequest paginationRequest);
 }

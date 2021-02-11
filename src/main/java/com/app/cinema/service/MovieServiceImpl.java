@@ -74,4 +74,14 @@ public class MovieServiceImpl implements MovieService {
     public List<Movie> findMoviesByStartTime(LocalDateTime begin, LocalDateTime end) {
         return movieRepository.findAllByStartTimeBetween(begin, end);
     }
+
+    @Override
+    public Page<Movie> findUnwatchedMoviesByGenreNames(List<String> names, Set<Long> watchedIds, PaginationRequest paginationRequest) {
+        Set<Genre> genreList = new HashSet<>();
+        names.forEach(name -> {
+            Optional<Genre> byName=this.genreRepository.findByName(name);
+            byName.ifPresent(genreList::add);
+        });
+        return movieRepository.findAllUnwatchedByGenres(genreList, watchedIds, paginationRequest.getPageable());
+    }
 }

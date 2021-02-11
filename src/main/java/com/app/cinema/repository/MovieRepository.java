@@ -24,5 +24,17 @@ public interface MovieRepository extends JpaRepository<Movie, Long>, JpaSpecific
 //    List<Movie> findAllByGenres(Set<Genre> genres);
     Page<Movie> findAllByGenres(Set<Genre> genres, Pageable pageable);
 
+    @Query("SELECT x FROM Movie x \n" +
+            "WHERE x IN (" +
+            "SELECT y FROM Movie y " +
+            " INNER JOIN y.genres yt " +
+            "WHERE yt IN (" +
+            ":genres" +
+            ") " +
+            " GROUP BY y)\n" +
+            "    " +
+            "AND x.id NOT IN (:watchedIds)")
+    Page<Movie> findAllUnwatchedByGenres(Set<Genre> genres, Set<Long> watchedIds, Pageable pageable);
+
     List<Movie> findAllByStartTimeBetween(LocalDateTime begin, LocalDateTime end);
 }
