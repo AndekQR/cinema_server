@@ -12,8 +12,6 @@ import com.app.cinema.service.interfaces.CinemaService;
 import com.app.cinema.service.interfaces.MovieService;
 import com.app.cinema.service.interfaces.ReservationService;
 import lombok.AllArgsConstructor;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,9 +23,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.sql.ResultSet;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -42,7 +37,9 @@ public class CinemaController {
     private final CinemaService cinemaService;
 
     @PostMapping("/reservation")
-    public ResponseEntity<ReservationDto> makeReservation(@AuthenticationPrincipal UserDetails userDetails, @NonNull @RequestBody ReservationRequest reservationRequest) throws NotFoundInDB, ChairReservedException {
+    public ResponseEntity<ReservationDto> makeReservation(@AuthenticationPrincipal UserDetails userDetails,
+                                                          @NonNull @RequestBody ReservationRequest reservationRequest)
+            throws NotFoundInDB, ChairReservedException {
         Reservation reservation=reservationService.createReservation(userDetails.getUsername(),
                 reservationRequest.getChairIds(),
                 reservationRequest.getMoveId(),
@@ -51,7 +48,8 @@ public class CinemaController {
     }
 
     @GetMapping("/reservations")
-    public ResponseEntity<List<ReservationDto>> getUserReservations(@AuthenticationPrincipal UserDetails userDetails) throws UsernameNotFoundException {
+    public ResponseEntity<List<ReservationDto>> getUserReservations(@AuthenticationPrincipal UserDetails userDetails)
+            throws UsernameNotFoundException {
         List<Reservation> userReservations=reservationService.getUserReservations(userDetails.getUsername());
         List<ReservationDto> reservationDtos=mapper.mapList(userReservations, ReservationDto.class);
         return ResponseEntity.ok(reservationDtos);
@@ -132,14 +130,22 @@ public class CinemaController {
     }
 
     @GetMapping("/movies/{genre}")
-    public ResponseEntity<List<MovieDto>> getMoviesByGenre(@NotNull @PathVariable(name="genre") List<String> genres) {
-        List<Movie> moviesByGenresName=movieService.findMoviesByGenresName(genres);
-        List<MovieDto> movieDtos=mapper.mapList(moviesByGenresName, MovieDto.class);
-        return ResponseEntity.ok(movieDtos);
+    public ResponseEntity<PaginationResponse<MovieDto>> getMoviesByGenre(@NotNull @PathVariable(name="genre") List<String> genres,
+                                                                         PaginationRequest paginationRequest) {
+        Page<Movie> moviesByGenresName=movieService.findMoviesByGenresName(genres, paginationRequest);
+                PaginationResponse<MovieDto> paginationResponse = PaginationResponse.<MovieDto>builder()
+                .page(moviesByGenresName.getNumber())
+                .content(mapper.mapList(moviesByGenresName.getContent(), MovieDto.class))
+                .size(moviesByGenresName.getSize())
+                .sortMethod(paginationRequest.getSortOrder())
+                .totalRows(moviesByGenresName.getTotalElements())
+                .sortedBy(paginationRequest.getSortBy())
+                .build();
+        return ResponseEntity.ok(paginationResponse);
     }
 
     @GetMapping("/movies/recommended")
-    public ResponseEntity<List<MovieDto>> getRecommendedMoviesForUser(@AuthenticationPrincipal UserDetails userDetails) throws UsernameNotFoundException {
+    public ResponseEntity<PaginationResponse<MovieDto>> getRecommendedMoviesForUser(@AuthenticationPrincipal UserDetails userDetails, PaginationRequest paginationRequest) throws UsernameNotFoundException {
         // 1. Pobierz historyczne rezerwacje użytkownika
         List<Reservation> userReservations=reservationService.getUserReservations(userDetails.getUsername());
         // 2. Zbierz wszystkie gatunki (powtarzające się) TODO ładniej to napisać
@@ -169,15 +175,24 @@ public class CinemaController {
         for (String genre: favoriteGenres) {
             // Zwróć tylko to gdzie znaleziono filmy (jakbym włączał wybierania po dacie),
             // bez tego znajdzie raczej zawsze
-            List<Movie> moviesByGenresName=movieService.findMoviesByGenresName(Collections.singletonList(genre));
+            Page<Movie> moviesByGenresName=movieService.findMoviesByGenresName(Collections.singletonList(genre),
+                    paginationRequest);
             // Usuń już obejrzane filmy (czy naprawdę trzeba?)
-            moviesByGenresName.removeIf(p -> watchedMovieIds.contains(p.getId()));
+//            moviesByGenresName.removeIf(p -> watchedMovieIds.contains(p.getId()));
             if (!moviesByGenresName.isEmpty()) {
                 System.out.println("Znaleziono filmy z ulubionego gatunku: "+genre);
-                List<MovieDto> movieDtos=mapper.mapList(moviesByGenresName, MovieDto.class);
-                return ResponseEntity.ok(movieDtos);
+//                List<MovieDto> movieDtos=mapper.mapList(moviesByGenresName, MovieDto.class);
+                PaginationResponse<MovieDto> paginationResponse = PaginationResponse.<MovieDto>builder()
+                        .page(moviesByGenresName.getNumber())
+                        .content(mapper.mapList(moviesByGenresName.getContent(), MovieDto.class))
+                        .size(moviesByGenresName.getSize())
+                        .sortMethod(paginationRequest.getSortOrder())
+                        .totalRows(moviesByGenresName.getTotalElements())
+                        .sortedBy(paginationRequest.getSortBy())
+                        .build();
+                return ResponseEntity.ok(paginationResponse);
             }
         }
-        return ResponseEntity.ok(Collections.emptyList());
+        return ResponseEntity.ok(PaginationResponse.<MovieDto>builder().build());
     }
 }

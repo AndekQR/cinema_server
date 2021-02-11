@@ -2,6 +2,8 @@ package com.app.cinema.repository;
 
 import com.app.cinema.Entity.Genre;
 import com.app.cinema.Entity.Movie;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -19,7 +21,8 @@ public interface MovieRepository extends JpaRepository<Movie, Long>, JpaSpecific
             "        :genres\n" +
             "    )\n" +
             "    GROUP BY y)")
-    List<Movie> findAllByGenres(Set<Genre> genres);
+//    List<Movie> findAllByGenres(Set<Genre> genres);
+    Page<Movie> findAllByGenres(Set<Genre> genres, Pageable pageable);
 
     List<Movie> findAllByStartTimeBetween(LocalDateTime begin, LocalDateTime end);
 }

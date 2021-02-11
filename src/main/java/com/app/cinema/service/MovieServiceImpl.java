@@ -61,13 +61,13 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public List<Movie> findMoviesByGenresName(List<String> names) {
+    public Page<Movie> findMoviesByGenresName(List<String> names, PaginationRequest paginationRequest) {
         Set<Genre> genreList = new HashSet<>();
         names.forEach(name -> {
             Optional<Genre> byName=this.genreRepository.findByName(name);
             byName.ifPresent(genreList::add);
         });
-        return movieRepository.findAllByGenres(genreList);
+        return movieRepository.findAllByGenres(genreList, paginationRequest.getPageable());
     }
 
     @Override

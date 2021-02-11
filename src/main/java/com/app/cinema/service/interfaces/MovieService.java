@@ -16,6 +16,6 @@ public interface MovieService {
     Movie getMovieById(Long id) throws NotFoundInDB;
     Page<Movie> getMoviesPage(PaginationRequest paginationRequest);
     List<Genre> getAllGenres();
-    List<Movie> findMoviesByGenresName(List<String> names);
+    Page<Movie> findMoviesByGenresName(List<String> names, PaginationRequest paginationRequest);
     List<Movie> findMoviesByStartTime(LocalDateTime begin, LocalDateTime end);
 }
